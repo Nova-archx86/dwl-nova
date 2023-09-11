@@ -3,7 +3,7 @@ static const int sloppyfocus               = 1;  /* focus follows mouse */
 static const int bypass_surface_visibility = 0;  /* 1 means idle inhibitors will disable idle tracking even if it's surface isn't visible  */
 static const unsigned int borderpx         = 1;  /* border pixel of windows */
 static const float bordercolor[]           = {0.5, 0.5, 0.5, 1.0};
-static const float focuscolor[]            = {1.0, 0.0, 0.0, 1.0};
+static const float focuscolor[]            = {1.0, 0.0, 1.0, 1.0};
 /* To conform the xdg-protocol, set the alpha to zero to restore the old behavior */
 static const float fullscreen_bg[]         = {0.1, 0.1, 0.1, 1.0};
 
@@ -15,7 +15,8 @@ static const Rule rules[] = {
 	/* examples:
 	{ "Gimp",     NULL,       0,            1,           -1 },
 	*/
-	{ "librewolf",  NULL,       1 << 8,       0,           -1 },
+	{ "librewolf",  NULL,       2 << 8,       0,           -1 },
+	{ "steam", 			NULL, 			5 << 8, 			1, 		 			 -1 },
 };
 
 /* layout(s) */
@@ -29,9 +30,8 @@ static const Layout layouts[] = {
 /* monitors */
 static const MonitorRule monrules[] = {
 	/* name       mfact nmaster scale layout       rotate/reflect                x    y */
-	/* example of a HiDPI laptop monitor:
+	//example of a HiDPI laptop monitor:
 	{ "eDP-1",    0.5,  1,      2,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
-	*/
 	/* defaults */
 	{ NULL,       0.55, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
 };
@@ -81,7 +81,7 @@ static const uint32_t send_events_mode = LIBINPUT_CONFIG_SEND_EVENTS_ENABLED;
 /* You can choose between:
 LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT
 LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE
-*/
+*/ 
 static const enum libinput_config_accel_profile accel_profile = LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE;
 static const double accel_speed = 0.0;
 /* You can choose between:
@@ -91,7 +91,7 @@ LIBINPUT_CONFIG_TAP_MAP_LMR -- 1/2/3 finger tap maps to left/middle/right
 static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TAP_MAP_LRM;
 
 /* If you want to use the windows key for MODKEY, use WLR_MODIFIER_LOGO */
-#define MODKEY WLR_MODIFIER_ALT
+#define MODKEY WLR_MODIFIER_LOGO
 
 #define TAGKEYS(KEY,SKEY,TAG) \
 	{ MODKEY,                    KEY,            view,            {.ui = 1 << TAG} }, \
@@ -103,29 +103,32 @@ static const enum libinput_config_tap_button_map button_map = LIBINPUT_CONFIG_TA
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *termcmd[] = { "foot", NULL };
-static const char *menucmd[] = { "bemenu-run", "-M", "150", "-c", "-l", "20", "--fn", "Mononoki Nerd Font", NULL };
-
+static const char *termcmd[] = { "kitty", NULL };
+static const char *menucmd[] = { "bemenu-run", "--fn", "Mononoki Nerd Font", NULL };
+static const char *browsecmd[] = { "librewolf", NULL };
+static const char *explorer[] = { "pcmanfm", "$HOME", NULL };
 static const Key keys[] = {
 	/* Note that Shift changes certain key codes: c -> C, 2 -> at, etc. */
 	/* modifier                  key                 function        argument */
 	{ MODKEY,                    XKB_KEY_d,          spawn,          {.v = menucmd} },
 	{ MODKEY,                    XKB_KEY_Return,     spawn,          {.v = termcmd} },
+	{ MODKEY,                    XKB_KEY_f,     	   spawn,          {.v = browsecmd} },
+	{ MODKEY,                    XKB_KEY_e,          spawn,          {.v = explorer } },
 	{ MODKEY,                    XKB_KEY_j,          focusstack,     {.i = +1} },
 	{ MODKEY,                    XKB_KEY_k,          focusstack,     {.i = -1} },
 	{ MODKEY,                    XKB_KEY_i,          incnmaster,     {.i = +1} },
-	{ MODKEY,                    XKB_KEY_p,          incnmaster,     {.i = -1} },
+	{ MODKEY,                    XKB_KEY_d,          incnmaster,     {.i = -1} },
 	{ MODKEY,                    XKB_KEY_h,          setmfact,       {.f = -0.05} },
 	{ MODKEY,                    XKB_KEY_l,          setmfact,       {.f = +0.05} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Return,     zoom,           {0} },
 	{ MODKEY,                    XKB_KEY_Tab,        view,           {0} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_Q,          killclient,     {0} },
 	{ MODKEY,                    XKB_KEY_t,          setlayout,      {.v = &layouts[0]} },
-	{ MODKEY,                    XKB_KEY_f,          setlayout,      {.v = &layouts[1]} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_f,          setlayout,      {.v = &layouts[1]} },
 	{ MODKEY,                    XKB_KEY_m,          setlayout,      {.v = &layouts[2]} },
 	{ MODKEY,                    XKB_KEY_space,      setlayout,      {0} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_space,      togglefloating, {0} },
-	{ MODKEY,                    XKB_KEY_e,         togglefullscreen, {0} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_e,         togglefullscreen, {0} },
 	{ MODKEY,                    XKB_KEY_0,          view,           {.ui = ~0} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_parenright, tag,            {.ui = ~0} },
 	{ MODKEY,                    XKB_KEY_comma,      focusmon,       {.i = WLR_DIRECTION_LEFT} },
